@@ -36,16 +36,21 @@ class Stream
     @subscribers.push client unless @subscribers.include?(client)
   end
   def unsubscribe(client)
-    @subscribers.remove(client)
+    @subscribers.delete(client)
   end
 
-  def <<(client)
-    subscribe(client)
-  end
-  def >>(client)
-    unsubscribe(client)
+  alias :<< :subscribe
+  alias :>> :unsubscribe
+
+  def each_subscriber
+    @subscribers.each { |s| yield s }
   end
 
+  def data_pushed(data)
+    @subscribers.each do |s|
+      s.connection.send_data(data)
+    end
+  end
 
 end
 

@@ -45,5 +45,21 @@ class StreamManager
     @streams.has_key?(name)
   end
 
+  def add(stream)
+    unless exists?(stream.name)
+      @streams[stream.name] = stream
+    end
+  end
+
+  def remove(stream)
+    if stream.kind_of?(String) && exists?(stream)
+      @streams.delete stream
+    elsif exists?(stream.name)
+      @streams.delete stream.name
+    end
+  end
+
+  alias :<< :add
+  alias :>> :remove
 end
 

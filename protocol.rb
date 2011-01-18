@@ -38,26 +38,30 @@ module E2
     end
     def request_nok!
       send_data "NOK\n\n"
-      puts "FIXME Close connection"
+      close_connection_after_writing
     end
 
     def publish(stream_name)
       E2.logger.debug "Client is publishing #{stream_name}"
+      StreamManager::i << (Stream.new(stream_name, @client))
+      @client.stream = stream_name
       @client.state = :publishing
     end
 
     def read(stream_name)
       E2.logger.debug "Client is reading #{stream_name}"
+      @client.stream = stream_name
       @client.state = :reading
+      StreamManager::i[stream_name] << @client
     end
 
     def parse_request
       res = true
 
       if @buffer =~ /PUT ([\w\/\.]+)\n/ && !StreamManager::i.exists?($1)
-        publish!($1)
+        publish($1)
       elsif @buffer =~ /GET ([\w\/\.]+)\n/ && StreamManager::i.exists?($1)
-        read!($1)
+        read($1)
       else
         res = false
       end
@@ -76,8 +80,10 @@ module E2
             request_nok!
           end
         end
+      elsif @client.state == :publishing
+        StreamManager::i[@client.stream].data_pushed(data)
       else
-        puts "FIXME, Relay video"
+        E2.logger.warn "A client is pushing data but he's not a publisher nor connecting"
       end
     end
   end

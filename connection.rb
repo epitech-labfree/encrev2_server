@@ -42,29 +42,18 @@ class Connection < EventMachine::Connection
 
   def receive_data data
     data_received(data)
-    #port, ip = Socket.unpack_sockaddr_in(get_peername)
-    #puts "Received #{data.length} bytes from #{ip}:#{port}"
+  end
 
-    # if @state == :connecting
-    #   if data =~ /PUT ([\w\/])/
-    #     @state = :pushing
-    #     @stream = $1
-    #     send_data "OK\n"
-    #     $treams[@stream] = Array.new
-    #   elsif data =~ /GET ([\w\/])/ and $treams.has_key? $1
-    #     @state = :getting
-    #     @stream = $1
-    #     send_data "OK\n"
-    #     $treams[@stream].push self
-    #   else
-    #     send_data "NOK\n"
-    #   end
-    # elsif @state == :pushing
-    #   $treams[@stream].each { |c| c.send_data data }
-    # else
-    #   port, ip = Socket.unpack_sockaddr_in(get_peername)
-    #   puts "Received data from #{ip}:#{port} in reading mode :-/"
-    # end
+  def unbind
+    E2.logger.debug "A connection is closed, cleaning up"
+    if @client.state == :reading && StreamManager::i.exists?(@client.stream)
+      StreamManager::i[@client.stream] >> @client
+    elsif @client.state == :publishing
+      StreamManager::i[@client.stream].each_subscriber do |s|
+        s.connection.close_connection_after_writing
+      end
+      StreamManager::i >> @client.stream
+    end
   end
 end
 
