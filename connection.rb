@@ -1,11 +1,11 @@
 ##
-## server-poc.rb
-## Login : <elthariel@hydre.freelab.lab.epitech.eu>
-## Started on  Thu Jan 13 18:43:36 2011 Julien 'Lta' BALLET
+## connection.rb
+## Login : <elthariel@rincevent>
+## Started on  Tue Jan 18 12:56:21 2011 elthariel
 ## $Id$
 ##
 ## Author(s):
-##  - Julien 'Lta' BALLET <elthariel@gmail.com>
+##  - elthariel <elthariel@gmail.com>
 ##
 ## Copyright (C) 2011 Epitech
 ## This program is free software; you can redistribute it and/or modify
@@ -26,56 +26,45 @@
 require 'rubygems'
 require 'eventmachine'
 require 'socket'
+require 'client'
+require 'protocol'
 
-#
-# hash of list of reading clients/"connection"
-# the key is the stream name
-$treams = Hash.new
-
-module EncreServer
+class Connection < EventMachine::Connection
+  include E2::Protocol
   # @@states = [:connecting, :pushing, :getting]
 
   def post_init
     port, ip = Socket.unpack_sockaddr_in(get_peername)
-    puts "New client : #{ip}:#{port}"
+    E2.logger.info "Client connecting from #{ip}:#{port}"
 
-    @state = :connecting
-    @stream = nil
+    @client = Client.new(self)
   end
 
   def receive_data data
+    data_received(data)
     #port, ip = Socket.unpack_sockaddr_in(get_peername)
     #puts "Received #{data.length} bytes from #{ip}:#{port}"
 
-    if @state == :connecting
-      if data =~ /PUT ([\w\/])/
-        @state = :pushing
-        @stream = $1
-        send_data "OK\n"
-        $treams[@stream] = Array.new
-      elsif data =~ /GET ([\w\/])/ and $treams.has_key? $1
-        @state = :getting
-        @stream = $1
-        send_data "OK\n"
-        $treams[@stream].push self
-      else
-        send_data "NOK\n"
-      end
-    elsif @state == :pushing
-      $treams[@stream].each { |c| c.send_data data }
-    else
-      port, ip = Socket.unpack_sockaddr_in(get_peername)
-      puts "Received data from #{ip}:#{port} in reading mode :-/"
-    end
+    # if @state == :connecting
+    #   if data =~ /PUT ([\w\/])/
+    #     @state = :pushing
+    #     @stream = $1
+    #     send_data "OK\n"
+    #     $treams[@stream] = Array.new
+    #   elsif data =~ /GET ([\w\/])/ and $treams.has_key? $1
+    #     @state = :getting
+    #     @stream = $1
+    #     send_data "OK\n"
+    #     $treams[@stream].push self
+    #   else
+    #     send_data "NOK\n"
+    #   end
+    # elsif @state == :pushing
+    #   $treams[@stream].each { |c| c.send_data data }
+    # else
+    #   port, ip = Socket.unpack_sockaddr_in(get_peername)
+    #   puts "Received data from #{ip}:#{port} in reading mode :-/"
+    # end
   end
 end
-
-EventMachine::run {
-  EventMachine::start_server "0.0.0.0", 4242, EncreServer
-  puts 'Started Encre Server on 0.0.0.0:4242'
-}
-
-
-
-
 
