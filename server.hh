@@ -38,19 +38,25 @@ namespace e2
     class server : public boost::noncopyable
     {
     public:
-      server(std::string host, unsigned short port);
+      typedef boost::signals2::signal<void (connection &)> connection_signal;
+
+      server(std::string key_path, std::string cert_path, std::string dh_path,
+             std::string host, unsigned short port);
 
       boost::asio::io_service           &io();
       boost::asio::ssl::context         &ssl();
+
+      connection_signal                 &on_connection();
     protected:
       void                              start_accept();
-      void                              handle_accept(connection* new_connection,
+      void                              handle_accept(ssl_connection* new_connection,
                                                       const boost::system::error_code& error);
       std::string                       get_password() const;
 
       boost::asio::io_service           m_io_service;
       boost::asio::ip::tcp::acceptor    m_acceptor;
       boost::asio::ssl::context         m_ssl_context;
+      connection_signal                 m_connection_signal;
     private:
       server();
     };

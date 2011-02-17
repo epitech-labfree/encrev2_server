@@ -30,7 +30,8 @@ namespace e2
 {
   namespace net
   {
-    server::server(std::string host, unsigned short port = 6666)
+    server::server(std::string key_path, std::string cert_path, std::string dh_path,
+                   std::string host, unsigned short port = 6666)
       : m_acceptor(m_io_service, tcp::endpoint(tcp::v4(), port)),
         m_ssl_context(m_io_service, boost::asio::ssl::context::sslv23)
     {
@@ -38,9 +39,9 @@ namespace e2
                                 | boost::asio::ssl::context::no_sslv2
                                 | boost::asio::ssl::context::single_dh_use);
       m_ssl_context.set_password_callback(boost::bind(&server::get_password, this));
-      m_ssl_context.use_certificate_chain_file("ssl/cert.pem");
-      m_ssl_context.use_private_key_file("ssl/privkey.pem", boost::asio::ssl::context::pem);
-      m_ssl_context.use_tmp_dh_file("ssl/dhparams.pem");
+      m_ssl_context.use_certificate_chain_file(cert_path);
+      m_ssl_context.use_private_key_file(key_path, boost::asio::ssl::context::pem);
+      m_ssl_context.use_tmp_dh_file(dh_path);
 
       start_accept();
     }
@@ -55,21 +56,27 @@ namespace e2
       return m_ssl_context;
     }
 
+    server::connection_signal         &server::on_connection()
+    {
+      return m_connection_signal;
+    }
+
     void server::start_accept()
     {
-      connection* new_connection = new connection(io(), ssl());
+      ssl_connection* new_connection = new ssl_connection(io(), ssl());
 
       m_acceptor.async_accept(new_connection->socket(),
                               boost::bind(&server::handle_accept, this, new_connection,
                                           boost::asio::placeholders::error));
     }
 
-    void server::handle_accept(connection* new_connection,
+    void server::handle_accept(ssl_connection* new_connection,
                                const boost::system::error_code& error)
     {
-      if (!error)
+      if (!error && new_connection)
       {
         new_connection->start();
+        m_connection_signal(*new_connection);
         start_accept();
       }
     }

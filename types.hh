@@ -27,10 +27,14 @@
 # define   	TYPES_HH_
 
 # include <string>
+# include <vector>
+# include <list>
 
 # include <boost/asio.hpp>
 # include <boost/asio/ssl.hpp>
+# include <boost/signals2.hpp>
 # include <boost/bind.hpp>
+# include <boost/thread/mutex.hpp>
 
 namespace e2
 {

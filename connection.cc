@@ -32,41 +32,74 @@ namespace e2
 {
   namespace net
   {
-    connection::connection(boost::asio::io_service& io_service,
-                           boost::asio::ssl::context& context)
-      : m_socket(io_service, context)
+    ssl_connection::ssl_connection(boost::asio::io_service& io_service,
+                                   boost::asio::ssl::context& context)
+      : m_socket(io_service, context), m_send_active(false)
     {
     }
 
-    connection::~connection()
+    ssl_connection::~ssl_connection()
     {
       cout << "connection deleted" << endl;
     }
 
-    ssl_socket::lowest_layer_type &connection::socket()
+    ssl_socket::lowest_layer_type &ssl_connection::socket()
     {
       return m_socket.lowest_layer();
     }
 
-    void                  connection::start()
+    connection::data_available_signal &ssl_connection::on_data_received()
+    {
+      return m_data_signal;
+    }
+
+    connection::connected_signal      &ssl_connection::on_connect()
+    {
+      return m_connected_signal;
+    }
+
+    connection::disconnected_signal   &ssl_connection::on_disconnect()
+    {
+      return m_disconnected_signal;
+    }
+
+    bool                              ssl_connection::send_data(buffer &data_to_send)
+    {
+      boost::mutex::scoped_lock(m_output_mutex);
+      std::ostream o(&m_output_buffer);
+      std::istream i(&data_to_send);
+
+      o << i;
+
+      start_write();
+
+      return true;
+    }
+
+    void                  ssl_connection::start()
     {
       m_socket.async_handshake(boost::asio::ssl::stream_base::server,
-                               boost::bind(&connection::handle_handshake, this,
+                               boost::bind(&ssl_connection::handle_handshake, this,
                                            boost::asio::placeholders::error));
     }
 
-    void connection::handle_handshake(const boost::system::error_code& error)
+    void                  ssl_connection::start_write()
+    {
+      cout << "should start to write" << endl;
+    }
+
+    void ssl_connection::handle_handshake(const boost::system::error_code& error)
     {
       m_msg = string("Ceci est un test\n");
 
       if (!error)
       {
         boost::asio::async_write(m_socket, boost::asio::buffer(m_msg),
-                                 boost::bind(&connection::handle_write, this,
+                                 boost::bind(&ssl_connection::handle_write, this,
                                              boost::asio::placeholders::error,
                                              boost::asio::placeholders::bytes_transferred));
         m_socket.async_read_some(boost::asio::buffer(m_data, max_length),
-                                 boost::bind(&connection::handle_read, this,
+                                 boost::bind(&ssl_connection::handle_read, this,
                                              boost::asio::placeholders::error,
                                              boost::asio::placeholders::bytes_transferred));
       }
@@ -74,14 +107,14 @@ namespace e2
         cerr << "SSL Handshake error: " << error.message() << endl;
     }
 
-    void connection::handle_read(const boost::system::error_code& error,
-                                 size_t bytes_transferred)
+    void ssl_connection::handle_read(const boost::system::error_code& error,
+                                     size_t bytes_transferred)
     {
       if (!error)
       {
         boost::asio::async_write(m_socket,
                                  boost::asio::buffer(m_data, bytes_transferred),
-                                 boost::bind(&connection::handle_write, this,
+                                 boost::bind(&ssl_connection::handle_write, this,
                                              boost::asio::placeholders::error,
                                              boost::asio::placeholders::bytes_transferred));
       }
@@ -92,13 +125,13 @@ namespace e2
       }
     }
 
-    void connection::handle_write(const boost::system::error_code& error,
-                                  size_t bytes_transferred)
+    void ssl_connection::handle_write(const boost::system::error_code& error,
+                                      size_t bytes_transferred)
     {
       if (!error)
       {
         m_socket.async_read_some(boost::asio::buffer(m_data, max_length),
-                                 boost::bind(&connection::handle_read, this,
+                                 boost::bind(&ssl_connection::handle_read, this,
                                              boost::asio::placeholders::error,
                                              boost::asio::placeholders::bytes_transferred));
       }

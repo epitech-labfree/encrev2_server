@@ -34,7 +34,8 @@ int main(int ac, char **av)
 {
   //  try
   {
-    e2::net::server     server(string("unused_now"), 6666);
+    e2::net::server     server("ssl/privkey.pem", "ssl/cert.pem", "ssl/dhparams.pem",
+                               string("unused_now"), 6666);
 
     cout << "Launching Encrev2 Server" << endl;
     server.io().run();
