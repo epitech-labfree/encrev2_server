@@ -43,6 +43,13 @@ namespace e2
     using boost::asio::ip::tcp;
 
     typedef boost::asio::ssl::stream<tcp::socket> ssl_socket;
+
+    typedef std::vector<uint8_t> buffer;
+    typedef boost::shared_ptr<buffer> buffer_ptr;
+    typedef boost::shared_ptr<const buffer> const_buffer_ptr;
+    typedef std::list<buffer_ptr> buffer_list;
+    typedef std::list<const_buffer_ptr> const_buffer_list;
+
   }
 }
 
