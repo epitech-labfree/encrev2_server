@@ -37,10 +37,13 @@ namespace e2
     request_parser();
 
     bool                feed(net::const_buffer_ptr data);
-    bool                is_complete() const;
-    operator bool() const; //handy alias for the preceding method
+    bool                is_complete();
+    operator bool(); //handy alias for the preceding method
 
-    request             get_request();
+    request             &get_request();
+  protected:
+    std::string         raw_request;
+    request             m_request;
   };
 };
 

@@ -1,7 +1,7 @@
 /*
-** client_manager.hh
+** request.cc
 ** Login : <elthariel@rincevent>
-** Started on  Thu Feb 24 05:25:05 2011 elthariel
+** Started on  Thu Feb 24 17:40:07 2011 elthariel
 ** $Id$
 **
 ** Author(s):
@@ -23,29 +23,32 @@
 ** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
-#ifndef   	CLIENT_MANAGER_HH_
-# define   	CLIENT_MANAGER_HH_
-
-# include "types.hh"
-# include "client.hh"
-# include "connection.hh"
+#include <iostream>
+#include "request.hh"
 
 namespace e2
 {
-  class client_manager
+  bool                request::is_valid()
   {
-  public:
-    typedef std::map<std::string, client_ptr> client_map;
+    return get_type() != UNKNOWN;
+  }
 
-    client_manager(stream_manager &sm);
-    ~client_manager();
+  bool                request::has_key(std::string k)
+  {
+    return find(k) != end();
+  }
 
-    bool                on_connection(net::connection &c);
+  request::type       request::get_type()
+  {
+    std::string       action;
 
-  protected:
-    boost::mutex        m_mutex;
-    client_map          m_clients;
-  };
+    action = (*this)["action"];
+
+    if (action == "READ")
+      return READ;
+    else if (action == "WRITE")
+      return WRITE;
+    else
+      return UNKNOWN;
+  }
 }
-
-#endif	    /* !CLIENT_MANAGER_HH_ */

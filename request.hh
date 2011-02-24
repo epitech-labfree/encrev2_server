@@ -33,10 +33,11 @@ namespace e2
   class request : public std::map<std::string, std::string>
   {
   public:
-    enum type {UNKOWN, WRITE, READ};
+    enum type {UNKNOWN, WRITE, READ};
 
     bool                is_valid();
-    type                get_type();
+    enum type           get_type();
+    bool                has_key(std::string);
   };
 }
 

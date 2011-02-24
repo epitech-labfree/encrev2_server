@@ -40,6 +40,7 @@ namespace e2
   public:
     void                        subscribe(client_ptr reader);
     bool                        unsubscribe(client_ptr reader);
+    bool                        send_data(net::const_buffer_ptr data);
 
   protected:
     stream(stream_manager &m, client &writer, std::string name);

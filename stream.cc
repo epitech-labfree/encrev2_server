@@ -25,6 +25,7 @@
 
 #include <iostream>
 #include "stream.hh"
+#include "client.hh"
 
 using namespace std;
 
@@ -47,5 +48,19 @@ namespace e2
     boost::mutex::scoped_lock l(m_mutex);
 
     m_readers.remove(reader);
+  }
+
+  bool                        stream::send_data(net::const_buffer_ptr data)
+  {
+    boost::mutex::scoped_lock l(m_mutex);
+    std::list<client_ptr>::iterator  iter;
+    client_ptr                client;
+
+    for (iter = m_readers.begin(); iter != m_readers.end(); iter++)
+    {
+      client = *iter;
+      if (client)
+        client->send_data(data);
+    }
   }
 }

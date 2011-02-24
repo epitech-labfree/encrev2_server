@@ -133,7 +133,10 @@ namespace e2
       {
         std::clog << "Received some data !" << std::endl;
         if (m_receiver)
+        {
+          m_input_buffer->resize(bytes_transferred);
           m_receiver->receive_data(boost::const_pointer_cast<const buffer>(m_input_buffer));
+        }
         start_read();
       }
       else

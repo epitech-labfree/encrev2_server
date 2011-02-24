@@ -5,6 +5,8 @@ set (e2_server_SOURCES types.hh
   main.cc
   server.cc
   connection.cc
+  request.cc
+  request_parser.cc
   stream_manager.cc
   stream.cc
   e2.cc
@@ -52,7 +54,7 @@ ENDMACRO(ADD_PCH_RULE _header_filename _src_list)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SSL REQUIRED libssl)
-find_package(Boost 1.40 REQUIRED COMPONENTS thread system program_options)
+find_package(Boost 1.40 REQUIRED COMPONENTS thread system program_options regex)
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${SSL_INCLUDE_DIRS})

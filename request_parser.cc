@@ -1,7 +1,7 @@
 /*
-** client_manager.hh
+** request_parser.cc
 ** Login : <elthariel@rincevent>
-** Started on  Thu Feb 24 05:25:05 2011 elthariel
+** Started on  Thu Feb 24 17:39:30 2011 elthariel
 ** $Id$
 **
 ** Author(s):
@@ -23,29 +23,30 @@
 ** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
-#ifndef   	CLIENT_MANAGER_HH_
-# define   	CLIENT_MANAGER_HH_
-
-# include "types.hh"
-# include "client.hh"
-# include "connection.hh"
+#include <iostream>
+#include "request_parser.hh"
 
 namespace e2
 {
-  class client_manager
+  request_parser::request_parser()
   {
-  public:
-    typedef std::map<std::string, client_ptr> client_map;
+  }
 
-    client_manager(stream_manager &sm);
-    ~client_manager();
+  bool                request_parser::feed(net::const_buffer_ptr data)
+  {
+  }
 
-    bool                on_connection(net::connection &c);
+  bool                request_parser::is_complete()
+  {
+  }
 
-  protected:
-    boost::mutex        m_mutex;
-    client_map          m_clients;
-  };
+  request_parser::operator bool()
+  {
+    return is_complete();
+  }
+
+  request             &request_parser::get_request()
+  {
+    return m_request;
+  }
 }
-
-#endif	    /* !CLIENT_MANAGER_HH_ */
