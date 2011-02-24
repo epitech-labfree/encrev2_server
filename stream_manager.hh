@@ -45,10 +45,12 @@ namespace e2
 
     stream_ptr          get_stream(std::string name);
     stream_ptr          operator[](std::string name); // handy alias for the above
+    bool                exists(std::string name);
 
   protected:
 
     stream_map          m_streams;
+    boost::mutex        m_mutex;
   };
 };
 

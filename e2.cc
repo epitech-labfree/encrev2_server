@@ -23,13 +23,21 @@
 ** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
+#include <iostream>
+#include <string>
+
 #include "e2.hh"
+
+using namespace std;
 
 namespace e2
 {
   e2::e2(po::variables_map &vm)
-    : m_server("ssl/privkey.pem", "ssl/cert.pem", "ssl/dhparams.pem",
-               std::string("unused_now"), 6666)
+    : m_server(vm["ssl-key"].as<string>(),
+               vm["ssl-crt"].as<string>(),
+               vm["ssl-dh"].as<string>(),
+               vm["bind"].as<string>(),
+               vm["port"].as<int>())
   {
   }
 

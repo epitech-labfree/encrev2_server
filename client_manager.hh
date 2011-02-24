@@ -29,4 +29,22 @@
 # include "types.hh"
 # include "client.hh"
 
+namespace e2
+{
+  class client_manager
+  {
+  public:
+    typedef std::map<std::string, client_ptr> client_map;
+
+    client_manager(stream_manager &sm);
+    ~client_manager();
+
+    bool                on_connection(connection &c);
+
+  protected:
+    boost::mutex        m_mutex;
+    client_map          m_clients;
+  };
+}
+
 #endif	    /* !CLIENT_MANAGER_HH_ */

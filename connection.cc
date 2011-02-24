@@ -51,7 +51,7 @@ namespace e2
 
     bool                  ssl_connection::send_data(const_buffer_ptr data)
     {
-      boost::mutex::scoped_lock(m_mutex);
+      boost::mutex::scoped_lock l(m_mutex);
 
       if (m_buffers.size() <= 64)
       {
@@ -111,7 +111,7 @@ namespace e2
     {
       if (!error)
       {
-        boost::mutex::scoped_lock(m_mutex);
+        boost::mutex::scoped_lock l(m_mutex);
 
         m_ready = true;
 
@@ -146,7 +146,7 @@ namespace e2
     void ssl_connection::handle_write(const boost::system::error_code& error,
                                       size_t bytes_transferred)
     {
-      boost::mutex::scoped_lock(m_mutex);
+      boost::mutex::scoped_lock l(m_mutex);
 
       if (!error)
       {

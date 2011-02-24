@@ -1,7 +1,7 @@
 /*
-** e2.hh
+** stream.cc
 ** Login : <elthariel@rincevent>
-** Started on  Thu Feb 24 06:12:14 2011 elthariel
+** Started on  Thu Feb 24 09:15:18 2011 elthariel
 ** $Id$
 **
 ** Author(s):
@@ -23,33 +23,29 @@
 ** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
-#ifndef   	E2_HH_
-# define   	E2_HH_
+#include <iostream>
+#include "stream.hh"
 
-# include <boost/program_options.hpp>
-
-# include "server.hh"
-# include "stream_manager.hh"
-# include "client_manager.hh"
-
-namespace po = boost::program_options;
+using namespace std;
 
 namespace e2
 {
-  class e2
+  stream::stream(stream_manager &m, client &writer, std::string name)
+    : m_streams(m), m_client(writer), m_name(name)
   {
-  public:
-    e2(po::variables_map &vm);
-    ~e2();
+  }
 
-    void                        run();
+  void                        stream::subscribe(client_ptr reader)
+  {
+    boost::mutex::scoped_lock l(m_mutex);
 
-  protected:
-    po::variables_map           m_vm;
-    net::server                 m_server;
-    // client_manager              m_clients;
-    // stream_manager              m_streams;
-  };
+    m_readers.push_back(reader);
+  }
+
+  bool                        stream::unsubscribe(client_ptr reader)
+  {
+    boost::mutex::scoped_lock l(m_mutex);
+
+    m_readers.remove(reader);
+  }
 }
-
-#endif	    /* !E2_HH_ */

@@ -24,6 +24,7 @@
 */
 
 #include <iostream>
+#include <string>
 
 #include "e2.hh"
 
@@ -36,36 +37,62 @@ void                    set_options(po::options_description &desc)
     ("version",                 "Print version information")
     // Network stuffs
     ("port", po::value<int>()->default_value(6666),
-                                "Bind server to the port 'arg'")
+                                "Port to listen to")
+    ("bind", po::value<string>()->default_value("0.0.0.0"),
+                                "Ip address to bind to (unused)")
+    // Ssl stuffs
+    ("ssl-key", po::value<string>()->default_value("ssl/privkey.pem"),
+                                "Path to ssl private key")
+    ("ssl-crt", po::value<string>()->default_value("ssl/cert.pem"),
+                                "Path to ssl certificate")
+    ("ssl-dh", po::value<string>()->default_value("ssl/dhparams.pem"),
+                                "Path to DH Params file")
     ;
-
-  cout << "THESE ARE JUST TEST, OPTIONS ARE STILL UNUSED" << endl;
-  cout << desc << endl;
-  cout << "-----------------------------" << endl;
 };
 
-po::variables_map       get_config(int ac, char **av)
+bool                    short_run_option(po::options_description &desc,
+                                         po::variables_map &vm)
 {
-  po::options_description desc("Usage");
-
-  set_options(desc);
+  if (vm.count("help"))
+    cout << desc << endl;
+  else if (vm.count("version"))
+  {
+    cout << "e2_server: 0.0.0-alpha" << endl;
+  }
+  else
+    return false;
+  return true;
 }
 
 int main(int ac, char **av)
 {
+  po::options_description desc("Usage");
+  set_options(desc);
+  po::variables_map vm;
 
-  try
-  {
-    po::variables_map   vm = get_config(ac, av);
-    e2::e2              e2_server(vm);
-
-    cout << "Launching Encrev2 Server" << endl;
-    e2_server.run();
+  try { po::store(po::parse_command_line(ac, av, desc), vm); }
+  catch (...) {
+    cerr << "Unrecognized command line parameter(s)" << endl
+         <<  desc << endl;
+    return (1);
   }
-  catch (exception &e)
+
+  po::notify(vm);
+
+  if (!short_run_option(desc, vm))
   {
-    cerr << av[0] << " aborted, exception.what() = " << e.what() << endl;
-    return 1;
+    try
+    {
+      e2::e2              e2_server(vm);
+
+      cout << "Launching Encrev2 Server" << endl;
+      e2_server.run();
+    }
+    catch (exception &e)
+    {
+      cerr << av[0] << " aborted, exception.what() = " << e.what() << endl;
+      return 2;
+    }
   }
 
   return 0;

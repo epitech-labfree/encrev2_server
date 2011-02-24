@@ -38,8 +38,8 @@ namespace e2
                  private boost::noncopyable
   {
   public:
-    void                        subscribe(client_ptr &reader);
-    bool                        unsubscribe(client_ptr &reader);
+    void                        subscribe(client_ptr reader);
+    bool                        unsubscribe(client_ptr reader);
 
   protected:
     stream(stream_manager &m, client &writer, std::string name);

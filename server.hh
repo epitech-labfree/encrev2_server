@@ -38,7 +38,7 @@ namespace e2
     class server : public boost::noncopyable
     {
     public:
-      typedef boost::signals2::signal<void (connection &)> connection_signal;
+      typedef boost::signals2::signal<bool (connection &)> connection_signal;
 
       server(std::string key_path, std::string cert_path, std::string dh_path,
              std::string host, unsigned short port);
