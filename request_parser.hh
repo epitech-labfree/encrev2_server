@@ -1,7 +1,7 @@
 /*
-** types.hh
+** request_parser.hh
 ** Login : <elthariel@rincevent>
-** Started on  Wed Feb 16 16:01:01 2011 elthariel
+** Started on  Thu Feb 24 05:39:19 2011 elthariel
 ** $Id$
 **
 ** Author(s):
@@ -23,38 +23,25 @@
 ** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
-#ifndef   	TYPES_HH_
-# define   	TYPES_HH_
+#ifndef   	REQUEST_PARSER_HH_
+# define   	REQUEST_PARSER_HH_
 
-# include <string>
-# include <vector>
-# include <list>
-# include <map>
-
-# include <boost/asio.hpp>
-# include <boost/asio/ssl.hpp>
-# include <boost/signals2.hpp>
-# include <boost/bind.hpp>
-# include <boost/thread/mutex.hpp>
-# include <boost/shared_ptr.hpp>
-# include <boost/enable_shared_from_this.hpp>
+# include "types.hh"
+# include "request.hh"
 
 namespace e2
 {
-  namespace net
+  class request_parser
   {
-    using boost::asio::ip::tcp;
+  public:
+    request_parser();
 
-    typedef boost::asio::ssl::stream<tcp::socket> ssl_socket;
+    bool                feed(net::const_buffer_ptr data);
+    bool                is_complete() const;
+    operator bool() const; //handy alias for the preceding method
 
-    typedef std::vector<uint8_t> buffer;
-    typedef boost::shared_ptr<buffer> buffer_ptr;
-    typedef boost::shared_ptr<const buffer> const_buffer_ptr;
-    typedef std::list<buffer_ptr> buffer_list;
-    typedef std::list<const_buffer_ptr> const_buffer_list;
+    request             get_request();
+  };
+};
 
-  }
-}
-
-
-#endif	    /* !TYPES_HH_ */
+#endif	    /* !REQUEST_PARSER_HH_ */

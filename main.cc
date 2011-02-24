@@ -25,26 +25,48 @@
 
 #include <iostream>
 
-#include "server.hh"
+#include "e2.hh"
 
 using namespace std;
 
+void                    set_options(po::options_description &desc)
+{
+  desc.add_options()
+    ("help",                    "Produce help message")
+    ("version",                 "Print version information")
+    // Network stuffs
+    ("port", po::value<int>()->default_value(6666),
+                                "Bind server to the port 'arg'")
+    ;
+
+  cout << "THESE ARE JUST TEST, OPTIONS ARE STILL UNUSED" << endl;
+  cout << desc << endl;
+  cout << "-----------------------------" << endl;
+};
+
+po::variables_map       get_config(int ac, char **av)
+{
+  po::options_description desc("Usage");
+
+  set_options(desc);
+}
 
 int main(int ac, char **av)
 {
-  //  try
+
+  try
   {
-    e2::net::server     server("ssl/privkey.pem", "ssl/cert.pem", "ssl/dhparams.pem",
-                               string("unused_now"), 6666);
+    po::variables_map   vm = get_config(ac, av);
+    e2::e2              e2_server(vm);
 
     cout << "Launching Encrev2 Server" << endl;
-    server.io().run();
+    e2_server.run();
   }
-  // catch (exception &e)
-  // {
-  //   cerr << av[0] << " aborted, exception.what() = " << e.what() << endl;
-  // }
-
+  catch (exception &e)
+  {
+    cerr << av[0] << " aborted, exception.what() = " << e.what() << endl;
+    return 1;
+  }
 
   return 0;
 }

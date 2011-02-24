@@ -1,7 +1,7 @@
 /*
-** types.hh
+** e2.c
 ** Login : <elthariel@rincevent>
-** Started on  Wed Feb 16 16:01:01 2011 elthariel
+** Started on  Thu Feb 24 06:13:17 2011 elthariel
 ** $Id$
 **
 ** Author(s):
@@ -23,38 +23,22 @@
 ** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
-#ifndef   	TYPES_HH_
-# define   	TYPES_HH_
-
-# include <string>
-# include <vector>
-# include <list>
-# include <map>
-
-# include <boost/asio.hpp>
-# include <boost/asio/ssl.hpp>
-# include <boost/signals2.hpp>
-# include <boost/bind.hpp>
-# include <boost/thread/mutex.hpp>
-# include <boost/shared_ptr.hpp>
-# include <boost/enable_shared_from_this.hpp>
+#include "e2.hh"
 
 namespace e2
 {
-  namespace net
+  e2::e2(po::variables_map &vm)
+    : m_server("ssl/privkey.pem", "ssl/cert.pem", "ssl/dhparams.pem",
+               std::string("unused_now"), 6666)
   {
-    using boost::asio::ip::tcp;
+  }
 
-    typedef boost::asio::ssl::stream<tcp::socket> ssl_socket;
+  e2::~e2()
+  {
+  }
 
-    typedef std::vector<uint8_t> buffer;
-    typedef boost::shared_ptr<buffer> buffer_ptr;
-    typedef boost::shared_ptr<const buffer> const_buffer_ptr;
-    typedef std::list<buffer_ptr> buffer_list;
-    typedef std::list<const_buffer_ptr> const_buffer_list;
-
+  void                        e2::run()
+  {
+    m_server.io().run();
   }
 }
-
-
-#endif	    /* !TYPES_HH_ */

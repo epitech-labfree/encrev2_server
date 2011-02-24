@@ -1,7 +1,7 @@
 /*
-** types.hh
+** e2.hh
 ** Login : <elthariel@rincevent>
-** Started on  Wed Feb 16 16:01:01 2011 elthariel
+** Started on  Thu Feb 24 06:12:14 2011 elthariel
 ** $Id$
 **
 ** Author(s):
@@ -23,38 +23,32 @@
 ** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
-#ifndef   	TYPES_HH_
-# define   	TYPES_HH_
+#ifndef   	E2_HH_
+# define   	E2_HH_
 
-# include <string>
-# include <vector>
-# include <list>
-# include <map>
+# include <boost/program_options.hpp>
 
-# include <boost/asio.hpp>
-# include <boost/asio/ssl.hpp>
-# include <boost/signals2.hpp>
-# include <boost/bind.hpp>
-# include <boost/thread/mutex.hpp>
-# include <boost/shared_ptr.hpp>
-# include <boost/enable_shared_from_this.hpp>
+# include "server.hh"
+# include "stream_manager.hh"
+# include "client_manager.hh"
+
+namespace po = boost::program_options;
 
 namespace e2
 {
-  namespace net
+  class e2
   {
-    using boost::asio::ip::tcp;
+  public:
+    e2(po::variables_map &vm);
+    ~e2();
 
-    typedef boost::asio::ssl::stream<tcp::socket> ssl_socket;
+    void                        run();
 
-    typedef std::vector<uint8_t> buffer;
-    typedef boost::shared_ptr<buffer> buffer_ptr;
-    typedef boost::shared_ptr<const buffer> const_buffer_ptr;
-    typedef std::list<buffer_ptr> buffer_list;
-    typedef std::list<const_buffer_ptr> const_buffer_list;
-
-  }
+  protected:
+    net::server                 m_server;
+    // client_manager              m_clients;
+    // stream_manager              m_streams;
+  };
 }
 
-
-#endif	    /* !TYPES_HH_ */
+#endif	    /* !E2_HH_ */

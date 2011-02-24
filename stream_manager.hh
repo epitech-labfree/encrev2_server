@@ -1,7 +1,7 @@
 /*
-** types.hh
+** stream_manager.hh
 ** Login : <elthariel@rincevent>
-** Started on  Wed Feb 16 16:01:01 2011 elthariel
+** Started on  Thu Feb 24 06:03:36 2011 elthariel
 ** $Id$
 **
 ** Author(s):
@@ -23,38 +23,33 @@
 ** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
-#ifndef   	TYPES_HH_
-# define   	TYPES_HH_
+#ifndef   	STREAM_MANAGER_HH_
+# define   	STREAM_MANAGER_HH_
 
-# include <string>
-# include <vector>
-# include <list>
-# include <map>
-
-# include <boost/asio.hpp>
-# include <boost/asio/ssl.hpp>
-# include <boost/signals2.hpp>
-# include <boost/bind.hpp>
-# include <boost/thread/mutex.hpp>
-# include <boost/shared_ptr.hpp>
-# include <boost/enable_shared_from_this.hpp>
+# include "types.hh"
+# include "stream.hh"
 
 namespace e2
 {
-  namespace net
+  class stream_manager
   {
-    using boost::asio::ip::tcp;
+  public:
+    typedef std::map<std::string, stream_ptr> stream_map;
 
-    typedef boost::asio::ssl::stream<tcp::socket> ssl_socket;
+    stream_manager();
+    ~stream_manager();
 
-    typedef std::vector<uint8_t> buffer;
-    typedef boost::shared_ptr<buffer> buffer_ptr;
-    typedef boost::shared_ptr<const buffer> const_buffer_ptr;
-    typedef std::list<buffer_ptr> buffer_list;
-    typedef std::list<const_buffer_ptr> const_buffer_list;
+    stream_ptr          create_stream(client &c, std::string name);
+    void                delete_stream(std::string name);
+    void                delete_stream(stream_ptr stream);
 
-  }
-}
+    stream_ptr          get_stream(std::string name);
+    stream_ptr          operator[](std::string name); // handy alias for the above
 
+  protected:
 
-#endif	    /* !TYPES_HH_ */
+    stream_map          m_streams;
+  };
+};
+
+#endif	    /* !STREAM_MANAGER_HH_ */
