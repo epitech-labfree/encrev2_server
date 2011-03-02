@@ -32,7 +32,8 @@ using namespace std;
 namespace e2
 {
   client::client(stream_manager &sm, client_manager &cm, net::connection &c)
-    : m_streams(sm), m_clients(cm), m_connnection(c)
+    : m_streams(sm), m_clients(cm), m_connnection(c),
+      m_type(UNKNOWN)
   {
     m_connnection.set_receiver(this);
   }
@@ -43,5 +44,34 @@ namespace e2
 
   bool                        client::receive_data(net::const_buffer_ptr data)
   {
+    if (m_type == UNKNOWN)
+    {
+      if (m_parser.feed(data))
+        on_request();
+    }
+    else if (m_type == WRITER && m_stream)
+      m_stream->send_data(data);
+    else
+      std::clog << "Reader client pushing data or undefined stream" << std::endl;
+  }
+
+  bool                        client::send_data(net::const_buffer_ptr data)
+  {
+    m_connnection.send_data(data);
+  }
+
+  enum client::type           client::type()
+  {
+    return m_type;
+  }
+
+  stream_ptr                  client::stream()
+  {
+    return m_stream;
+  }
+
+  void                        client::on_request()
+  {
+    cout << "on_request()" << endl;
   }
 }

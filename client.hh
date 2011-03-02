@@ -52,9 +52,12 @@ namespace e2
   protected:
     client(stream_manager &sm, client_manager &cm, net::connection &c);
 
+    void                        on_request();
+
     stream_manager              &m_streams;
     client_manager              &m_clients;
     net::connection             &m_connnection;
+    request_parser              m_parser;
     enum type                   m_type;
     stream_ptr                  m_stream;
 

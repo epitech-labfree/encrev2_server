@@ -1,7 +1,7 @@
 /*
-** e2.c
+** client_manager.cc
 ** Login : <elthariel@rincevent>
-** Started on  Thu Feb 24 06:13:17 2011 elthariel
+** Started on  Wed Mar  2 19:47:37 2011 elthariel
 ** $Id$
 **
 ** Author(s):
@@ -24,32 +24,34 @@
 */
 
 #include <iostream>
-#include <string>
-
-#include "e2.hh"
+#include "client_manager.hh"
 
 using namespace std;
 
 namespace e2
 {
-  e2::e2(po::variables_map &vm)
-    : m_server(vm["ssl-key"].as<string>(),
-               vm["ssl-crt"].as<string>(),
-               vm["ssl-dh"].as<string>(),
-               vm["bind"].as<string>(),
-               vm["port"].as<int>()),
-      m_clients(m_streams)
-  {
-    m_server.on_connection().connect(boost::bind(&client_manager::on_connection,
-                                                 &m_clients, _1));
-  }
-
-  e2::~e2()
+  client_manager::client_manager(stream_manager &sm)
+    : m_streams(sm)
   {
   }
 
-  void                        e2::run()
+  client_manager::~client_manager()
   {
-    m_server.io().run();
   }
-}
+
+  bool                client_manager::on_connection(net::connection &conn)
+  {
+    boost::mutex::scoped_lock l(m_mutex);
+
+    client_ptr        c(new client(m_streams, *this, conn));
+
+    if (c)
+    {
+      m_clients.push_back(c);
+      return true;
+    }
+    else
+      return false;
+  }
+};
+

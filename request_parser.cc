@@ -24,7 +24,10 @@
 */
 
 #include <iostream>
+#include <boost/regex.hpp>
 #include "request_parser.hh"
+
+using namespace std;
 
 namespace e2
 {
@@ -34,10 +37,20 @@ namespace e2
 
   bool                request_parser::feed(net::const_buffer_ptr data)
   {
+    m_raw_request.append(data->begin(), data->end());
+
+    if (has_end_token())
+    {
+      fill_request();
+      return true;
+    }
+    else
+      return false;
   }
 
   bool                request_parser::is_complete()
   {
+    return has_end_token() && m_request.is_valid();
   }
 
   request_parser::operator bool()
@@ -48,5 +61,40 @@ namespace e2
   request             &request_parser::get_request()
   {
     return m_request;
+  }
+
+  bool                request_parser::has_end_token()
+  {
+    boost::regex      end_token("\n\n\n");
+
+    return regex_search(m_raw_request, end_token);
+  }
+
+  bool                request_parser::fill_request()
+  {
+    std::cout << "request_parser::fill_request()" << std::endl;
+    ///std::cout << m_raw_request << std::endl;
+
+    std::string       r;
+    std::string       action;
+    std::string       stream;
+    boost::smatch     match;
+
+    boost::regex      extract_re("(.+)\n\n");
+    //boost::regex      action_re("(PUT|GET) ([[:word:]]+)(.*)");
+    boost::regex      action_re("(PUT|GET)");
+
+    regex_match(m_raw_request, match, extract_re, boost::match_continuous);
+    r = match[1];
+    cout << "request is" << endl << r << endl;
+    match = boost::smatch();
+    if (!regex_match(r, match, action_re))
+      cout << "can't find action" << endl;
+
+    for (uint32_t i = 0; i < match.size(); i++)
+      std::cout << "Match result " << i << " is:" << std::endl
+                << match[i] << std::endl;
+
+    return m_request.is_valid();
   }
 }

@@ -47,8 +47,8 @@ namespace e2
   protected:
     po::variables_map           m_vm;
     net::server                 m_server;
-    // client_manager              m_clients;
-    // stream_manager              m_streams;
+    stream_manager              m_streams;
+    client_manager              m_clients;
   };
 }
 

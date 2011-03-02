@@ -76,7 +76,8 @@ namespace e2
       if (!error && new_connection)
       {
         new_connection->start();
-        m_connection_signal(*new_connection);
+        if (!m_connection_signal(*new_connection))
+          delete new_connection;
         start_accept();
       }
     }

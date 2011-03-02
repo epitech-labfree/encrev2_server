@@ -42,6 +42,9 @@ namespace e2
     ssl_connection::~ssl_connection()
     {
       cout << "ssl_connection deleted" << endl;
+      m_socket.shutdown();
+      socket().shutdown(tcp::socket::shutdown_both);
+      socket().close();
     }
 
     ssl_socket::lowest_layer_type &ssl_connection::socket()

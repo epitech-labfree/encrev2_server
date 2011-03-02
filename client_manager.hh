@@ -35,7 +35,8 @@ namespace e2
   class client_manager
   {
   public:
-    typedef std::map<std::string, client_ptr> client_map;
+    typedef std::map<std::string, client_ptr>   client_map;
+    typedef std::list<client_ptr>               client_list;
 
     client_manager(stream_manager &sm);
     ~client_manager();
@@ -44,7 +45,8 @@ namespace e2
 
   protected:
     boost::mutex        m_mutex;
-    client_map          m_clients;
+    client_list         m_clients;
+    stream_manager      &m_streams;
   };
 }
 

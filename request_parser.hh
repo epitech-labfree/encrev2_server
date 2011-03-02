@@ -42,7 +42,10 @@ namespace e2
 
     request             &get_request();
   protected:
-    std::string         raw_request;
+    bool                has_end_token();
+    bool                fill_request();
+
+    std::string         m_raw_request;
     request             m_request;
   };
 };

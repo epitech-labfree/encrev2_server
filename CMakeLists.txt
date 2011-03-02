@@ -9,6 +9,8 @@ set (e2_server_SOURCES types.hh
   request_parser.cc
   stream_manager.cc
   stream.cc
+  client.cc
+  client_manager.cc
   e2.cc
   )
 
