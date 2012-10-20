@@ -1,0 +1,14 @@
+***************************************
+****
+** Encre Server
+***
+** version : current
+***
+** Depends : ruby1.9.1 rubygems (maybe libeventmachine)
+***
+** Install Unix :
+** rubygems install eventmachine
+** ruby1.9.1 server.rb
+***
+****
+***************************************
